@@ -18,23 +18,20 @@ public class JurassicPark {
 
     public List<String> checkOverpopulation() {
         List<String> overpopulated = new ArrayList<>();
+        String query = "SELECT breed " +
+                "FROM dinosaur " +
+                "WHERE expected < actual " +
+                "ORDER BY breed ASC";
 
         try (Connection connection = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
-            String query = "SELECT breed " +
-                    "FROM dinosaur " +
-                    "WHERE expected < actual " +
-                    "ORDER BY breed";
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                if (!overpopulated.contains(resultSet.getString("breed"))) {
-                    overpopulated.add(resultSet.getString("breed"));
-                }
+                overpopulated.add(resultSet.getString("breed"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
         return overpopulated;
     }
